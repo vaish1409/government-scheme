@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-cream text-ink font-body antialiased;
+    /* Slightly larger base font size than typical web defaults —
+       readability matters more than density for this audience. */
+    font-size: 17px;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+  /* Every interactive element gets a minimum 48px touch target —
+     small buttons are the #1 usability failure on cheap touchscreens. */
+  button, a, input, select {
+    min-height: 44px;
+  }
+  /* Always show a clear focus ring — many users will be on devices
+     with keyboards/assistive tech too. */
+  :focus-visible {
+    outline: 3px solid #0F6B5C;
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .tap-target {
+    @apply flex items-center justify-center min-h-[56px] min-w-[56px];
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

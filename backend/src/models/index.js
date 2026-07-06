@@ -1,0 +1,25 @@
+const { sequelize } = require('../config/db');
+const User = require('./User');
+const Scheme = require('./Scheme');
+const Lesson = require('./Lesson');
+const UserProgress = require('./UserProgress');
+const EligibilityCheck = require('./EligibilityCheck');
+
+// Associations
+User.hasMany(UserProgress, { foreignKey: 'userId', as: 'progress' });
+UserProgress.belongsTo(User, { foreignKey: 'userId' });
+
+Lesson.hasMany(UserProgress, { foreignKey: 'lessonId', as: 'progressEntries' });
+UserProgress.belongsTo(Lesson, { foreignKey: 'lessonId' });
+
+User.hasMany(EligibilityCheck, { foreignKey: 'userId', as: 'eligibilityChecks' });
+EligibilityCheck.belongsTo(User, { foreignKey: 'userId' });
+
+module.exports = {
+  sequelize,
+  User,
+  Scheme,
+  Lesson,
+  UserProgress,
+  EligibilityCheck,
+};
