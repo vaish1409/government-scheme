@@ -1,85 +1,81 @@
-# Saksham — Frontend (Offline-First PWA)
+# Saksham — Voice Livelihood Assistant (SIH26097)
 
-React + Vite PWA for the health/finance literacy + government scheme
-eligibility project. Designed specifically for first-time smartphone
-users and rural/low-connectivity contexts.
+An AI-assisted, voice-first assistant that helps Scheduled Caste beneficiaries under **PM-AJAY (GIA component)** find NSQF-aligned skill training, livelihood pathways and linked support, in Hindi or English, without filling forms.
 
-## Design decisions worth mentioning in an interview
+## What it does
+- **Voice interview** in Hindi or English (browser speech-to-text and text-to-speech, with a typed fallback). Covers the seven topics in the brief: education, family occupation, current livelihood, skills and interests, mobility and physical constraints, job vs. self-employment, local economy.
+- **Structured profile** extracted from speech, shown back so the person or a counsellor can correct it.
+- **Ranked NSQF courses** with a plain-language reason for every recommendation, a skill-gap view (what you have, what you will add, next level), the pathway (job or own work) and local demand.
+- **PM-AJAY linkage**: linked schemes (skilling, NSFDC, PM Vishwakarma, PMEGP, MUDRA, Stand-Up India, DAY-NRLM) checked with the existing rules engine.
+- **Counsellor confirms**: uncertain or sensitive cases are flagged; nothing is promised by the AI alone.
+- **Officer dashboard**: demand by state, wanted vs. locally available trades, common skill gaps, and a post-recommendation funnel (enrolled, completed, placed, dropped).
+- **Privacy**: guest mode, no audio stored, data saved only with explicit consent and deletable by the person.
+- **Offline PWA** shell, cached catalogue and lessons. Speaking to the assistant needs internet (browser speech service).
 
-- **Icon-led, minimal-text UI** — every primary action has a big icon plus a
-  short label, not paragraphs of instructions
-- **48px+ touch targets everywhere** — small buttons are the #1 usability
-  failure on cheap touchscreens
-- **Bilingual from day one** (English/Hindi) — `src/i18n/strings.js` is a
-  flat dictionary; adding a third language is one new object, no code changes
-- **Offline-first progress tracking** — lesson completion writes to
-  IndexedDB instantly (`src/db/offlineStore.js`) using a client-generated
-  UUID; the UI never waits on a network call. A background sync
-  (`src/hooks/useSync.js`) pushes queued events to the backend the moment
-  connectivity returns, and the backend dedupes on that same UUID.
-- **Installable PWA** — `vite-plugin-pwa` generates a service worker that
-  caches the lesson/scheme catalog and downloaded media so the app keeps
-  working with zero connectivity, not just "slow" connectivity.
+## Honest limits of this prototype
+- Course catalogue and state demand data are **sample data**. Real sources: Skill India Digital Hub / NSDC qualification packs, District Skill Development Plans, PLFS / NCS job data.
+- Understanding is keyword-based (deterministic and explainable) for Hindi and English. Regional languages and dialects are a roadmap item (add keywords in `backend/src/livelihood/vocab.js`, or plug a speech/LLM service into `extract.js`).
+- IVR and WhatsApp channels are planned: the `/api/livelihood/turn` endpoint is stateless and channel-agnostic, so a bridge can reuse it.
+- Scheme rules are simplified; the counsellor confirms current terms.
 
-## Tech stack
+## Tech Stack
+- Frontend: React, Vite, Tailwind CSS, PWA, Web Speech API
+- Backend: Node.js, Express, Sequelize, PostgreSQL
 
-React 18 · React Router · Tailwind CSS · Framer Motion (animations) ·
-IndexedDB via `idb` · Axios · Vite PWA plugin
+## Prerequisites
+- Node.js 18+
+- npm
+- PostgreSQL database (or Neon/Postgres-compatible URL)
+
+## Project Structure
+- backend/ — Express API and database models
+- frontend/ — React + Vite client app
 
 ## Setup
 
+### 1) Clone the repository
 ```bash
+git clone https://github.com/vaish1409/government-scheme.git
+cd government-scheme
+```
+
+### 2) Backend setup
+```bash
+cd backend
 npm install
-cp .env.example .env   # point VITE_API_URL at your deployed backend
+cp .env.example .env
+```
+Update the backend .env file with your PostgreSQL connection string and JWT secret.
+
+Run the backend:
+```bash
 npm run dev
 ```
+The API will run at http://localhost:5000.
 
-Visit `http://localhost:5173`.
-
-## Building for production
-
+### 3) Frontend setup
 ```bash
+cd ../frontend
+npm install
+cp .env.example .env
+```
+If needed, set the frontend API URL in the .env file:
+```bash
+VITE_API_URL=http://localhost:5000
+```
+Run the frontend:
+```bash
+npm run dev
+```
+The app will run at http://localhost:5173.
+
+## Build
+```bash
+cd frontend
 npm run build
-npm run preview   # sanity-check the production build locally
 ```
 
-The `dist/` folder is what you deploy (see deployment steps below).
-
-## Deploying (Vercel — recommended, free)
-
-1. Push this folder to GitHub (as its own repo, or a subfolder of a monorepo)
-2. Go to vercel.com → **New Project** → import the repo
-3. Framework preset: **Vite**
-4. Add environment variable: `VITE_API_URL` = your deployed backend URL
-5. Deploy — Vercel gives you a live `https://yourapp.vercel.app` URL
-
-### Testing the offline behavior for a demo
-
-1. Open the deployed app, log in, and open a lesson while online
-2. Chrome DevTools → **Network tab** → set to **Offline**
-3. Mark the lesson complete — notice it works instantly, no error
-4. Set Network back to **Online** — watch the sync banner confirm the sync
-5. This "online → offline → online" sequence is the best 60 seconds of any
-   demo video for this project — lead with it
-
-## Project structure
-
-```
-src/
-  api/client.js           # axios wrapper for all backend calls
-  db/offlineStore.js       # IndexedDB queue for offline progress events
-  hooks/useSync.js         # auto-syncs queued events when back online
-  hooks/useOnlineStatus.js
-  context/AuthContext.jsx
-  context/LanguageContext.jsx
-  i18n/strings.js           # English + Hindi strings
-  components/               # Button, cards, nav, sync banner
-  pages/                     # one file per screen
-```
-
-## What I'd add next
-
-- Add more languages (Kannada, Tamil, Bengali, Telugu)
-- Voice narration for onboarding for fully non-literate users
-- Downloadable lesson packs with visible storage-used indicator
-- Push notifications (via a service worker) for new eligible schemes
+## Notes
+- Run `npm run seed` in `backend/` to load sample lessons and 150 demo interviews for the officer dashboard (flagged `isDemo`).
+- Set `OFFICER_KEY` in `backend/.env`; open `/officer` in the app and enter it.
+- The frontend is configured for local development with the backend running on port 5000.

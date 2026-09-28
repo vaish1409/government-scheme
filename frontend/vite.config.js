@@ -13,9 +13,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png'],
       manifest: {
-        name: 'Saksham — Learn & Discover Schemes',
+        name: 'Saksham — Voice Livelihood Assistant',
         short_name: 'Saksham',
-        description: 'Bite-sized financial & health lessons, and a govt scheme eligibility checker — built to work offline.',
+        description: 'Talk in Hindi or English to find NSQF skill training, livelihood pathways and PM-AJAY support that fit you.',
         theme_color: '#0F6B5C',
         background_color: '#FBF8F2',
         display: 'standalone',
@@ -28,9 +28,9 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
-            // Lesson & scheme catalog data — cache first, fall back to network,
+            // Lesson list, course catalogue and form options — cache first, fall back to network,
             // so previously-loaded content works with zero connectivity.
-            urlPattern: ({ url }) => url.pathname.startsWith('/api/lessons') || url.pathname.startsWith('/api/schemes'),
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/lessons') || url.pathname === '/api/livelihood/meta' || url.pathname === '/api/livelihood/catalog',
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'api-catalog-cache' },
           },

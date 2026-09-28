@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const DB_NAME = 'saksham-offline-db';
 const STORE_NAME = 'progress-events';
+export const PROGRESS_QUEUED_EVENT = 'saksham:progress-queued';
 
 async function getDB() {
   return openDB(DB_NAME, 1, {
@@ -39,6 +40,9 @@ export async function queueProgressEvent({ lessonId, completed, progressPercent 
     synced: 0, // 0 = false, 1 = true — IndexedDB indexes booleans inconsistently across browsers
   };
   await db.put(STORE_NAME, event);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(PROGRESS_QUEUED_EVENT));
+  }
   return event;
 }
 

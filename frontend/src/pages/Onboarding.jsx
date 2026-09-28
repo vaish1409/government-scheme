@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, ShieldCheck, Globe } from 'lucide-react';
+import { GraduationCap, Mic, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import Button from '../components/Button';
 
@@ -28,7 +28,7 @@ export default function Onboarding() {
           transition={{ type: 'spring', stiffness: 200, damping: 14 }}
           className="w-28 h-28 bg-teal rounded-full flex items-center justify-center shadow-soft mb-6"
         >
-          <GraduationCap size={56} color="white" strokeWidth={1.8} />
+          <Mic size={56} color="white" strokeWidth={1.8} />
         </motion.div>
 
         <motion.h1
@@ -55,12 +55,12 @@ export default function Onboarding() {
           className="grid grid-cols-2 gap-3 mt-8 w-full"
         >
           <div className="bg-white rounded-xl2 p-4 shadow-card flex flex-col items-center gap-2">
-            <GraduationCap className="text-teal" size={28} />
-            <p className="text-sm font-semibold text-ink">2-min lessons</p>
+            <Mic className="text-teal" size={28} />
+            <p className="text-sm font-semibold text-ink">{t('onbTalk')}</p>
           </div>
           <div className="bg-white rounded-xl2 p-4 shadow-card flex flex-col items-center gap-2">
-            <ShieldCheck className="text-marigold-dark" size={28} />
-            <p className="text-sm font-semibold text-ink">Scheme checker</p>
+            <GraduationCap className="text-marigold-dark" size={28} />
+            <p className="text-sm font-semibold text-ink">{t('onbCourses')}</p>
           </div>
         </motion.div>
       </div>
@@ -71,8 +71,10 @@ export default function Onboarding() {
         transition={{ delay: 0.5 }}
         className="space-y-3"
       >
-        <Button onClick={() => navigate('/signup')}>{t('getStarted')}</Button>
+        <Button variant="marigold" icon={Mic} onClick={() => navigate('/assistant')}>{t('startTalking')}</Button>
         <Button variant="ghost" onClick={() => navigate('/login')}>{t('login')}</Button>
+        <Button variant="ghost" onClick={() => navigate('/signup')}>{t('signup')}</Button>
+        <button onClick={() => navigate('/officer')} className="w-full text-center text-sm text-gray-500 underline">{t('officerLink')}</button>
       </motion.div>
     </div>
   );

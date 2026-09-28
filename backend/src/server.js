@@ -12,6 +12,7 @@ const schemeRoutes = require('./routes/schemeRoutes');
 const lessonRoutes = require('./routes/lessonRoutes');
 const eligibilityRoutes = require('./routes/eligibilityRoutes');
 const syncRoutes = require('./routes/syncRoutes');
+const livelihoodRoutes = require('./routes/livelihoodRoutes');
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use('/api/schemes', schemeRoutes);
 app.use('/api/lessons', lessonRoutes);
 app.use('/api/eligibility', eligibilityRoutes);
 app.use('/api/sync', syncRoutes);
+app.use('/api/livelihood', livelihoodRoutes);
 
 // --- Error handling (must be last) ---
 app.use(notFound);

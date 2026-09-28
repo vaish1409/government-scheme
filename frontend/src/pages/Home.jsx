@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, ShieldCheck, Globe } from 'lucide-react';
+import { BookOpen, Mic, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -26,11 +26,28 @@ export default function Home() {
       </div>
 
       <motion.button
+        onClick={() => navigate('/assistant')}
+        whileTap={{ scale: 0.97 }}
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full bg-marigold rounded-xl2 p-5 shadow-soft flex items-center gap-4 mb-4 text-left"
+      >
+        <div className="w-14 h-14 bg-white/30 rounded-xl2 flex items-center justify-center flex-shrink-0">
+          <Mic color="#1E2A28" size={28} />
+        </div>
+        <div>
+          <h2 className="text-ink font-display font-bold text-lg">{t('talkTitle')}</h2>
+          <p className="text-ink/70 text-sm">{t('talkSubtitle')}</p>
+        </div>
+      </motion.button>
+
+      <motion.button
         onClick={() => navigate('/lessons')}
         whileTap={{ scale: 0.97 }}
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full bg-teal rounded-xl2 p-5 shadow-soft flex items-center gap-4 mb-4 text-left"
+        transition={{ delay: 0.08 }}
+        className="w-full bg-teal rounded-xl2 p-5 shadow-soft flex items-center gap-4 text-left"
       >
         <div className="w-14 h-14 bg-white/20 rounded-xl2 flex items-center justify-center flex-shrink-0">
           <BookOpen color="white" size={28} />
@@ -41,22 +58,6 @@ export default function Home() {
         </div>
       </motion.button>
 
-      <motion.button
-        onClick={() => navigate('/schemes')}
-        whileTap={{ scale: 0.97 }}
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.08 }}
-        className="w-full bg-marigold rounded-xl2 p-5 shadow-soft flex items-center gap-4 text-left"
-      >
-        <div className="w-14 h-14 bg-white/30 rounded-xl2 flex items-center justify-center flex-shrink-0">
-          <ShieldCheck color="#1E2A28" size={28} />
-        </div>
-        <div>
-          <h2 className="text-ink font-display font-bold text-lg">{t('checkEligibility')}</h2>
-          <p className="text-ink/70 text-sm">{t('checkEligibilitySubtitle')}</p>
-        </div>
-      </motion.button>
     </div>
   );
 }

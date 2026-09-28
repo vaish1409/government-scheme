@@ -9,10 +9,9 @@ import Signup from './pages/Signup';
 import Home from './pages/Home';
 import Lessons from './pages/Lessons';
 import LessonPlayer from './pages/LessonPlayer';
-import Schemes from './pages/Schemes';
-import SchemeDetail from './pages/SchemeDetail';
-import Eligibility from './pages/Eligibility';
-import EligibilityResults from './pages/EligibilityResults';
+import Assistant from './pages/Assistant';
+import LivelihoodResults from './pages/LivelihoodResults';
+import OfficerDashboard from './pages/OfficerDashboard';
 import Profile from './pages/Profile';
 import BottomNav from './components/BottomNav';
 import SyncBanner from './components/SyncBanner';
@@ -25,9 +24,8 @@ function ProtectedLayout({ children }) {
   if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-400">...</div>;
   if (!user) return <Navigate to="/" replace state={{ from: location }} />;
 
-  // Hide the bottom nav on full-screen flows like the lesson player and quiz
-  const hideNav = ['/lessons/', '/eligibility', '/schemes/'].some((p) => location.pathname.startsWith(p))
-    && location.pathname !== '/schemes';
+  // Hide the bottom nav on full-screen flows like the lesson player
+  const hideNav = location.pathname.startsWith('/lessons/');
 
   return (
     <div className="min-h-screen bg-cream">
@@ -45,13 +43,14 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
+      {/* Guest mode: no account needed to talk to the assistant or see results */}
+      <Route path="/assistant" element={<Assistant />} />
+      <Route path="/results" element={<LivelihoodResults />} />
+      <Route path="/officer" element={<OfficerDashboard />} />
+
       <Route path="/home" element={<ProtectedLayout><Home /></ProtectedLayout>} />
       <Route path="/lessons" element={<ProtectedLayout><Lessons /></ProtectedLayout>} />
       <Route path="/lessons/:id" element={<ProtectedLayout><LessonPlayer /></ProtectedLayout>} />
-      <Route path="/schemes" element={<ProtectedLayout><Schemes /></ProtectedLayout>} />
-      <Route path="/schemes/:slug" element={<ProtectedLayout><SchemeDetail /></ProtectedLayout>} />
-      <Route path="/eligibility" element={<ProtectedLayout><Eligibility /></ProtectedLayout>} />
-      <Route path="/eligibility/results" element={<ProtectedLayout><EligibilityResults /></ProtectedLayout>} />
       <Route path="/profile" element={<ProtectedLayout><Profile /></ProtectedLayout>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />

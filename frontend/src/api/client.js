@@ -24,14 +24,15 @@ export const lessonsApi = {
   progress: () => client.get('/lessons/progress'),
 };
 
-export const schemesApi = {
-  list: (params) => client.get('/schemes', { params }),
-  bySlug: (slug) => client.get(`/schemes/${slug}`),
-};
-
-export const eligibilityApi = {
-  check: (profile) => client.post('/eligibility/check', profile),
-  history: () => client.get('/eligibility/history'),
+export const livelihoodApi = {
+  meta: () => client.get('/livelihood/meta'),
+  turn: (body) => client.post('/livelihood/turn', body),
+  recommend: (body) => client.post('/livelihood/recommend', body),
+  deleteSession: (id) => client.delete(`/livelihood/sessions/${id}`),
+  // officer / counsellor (key is sent per request, never stored in localStorage)
+  dashboard: (key, lang) => client.get('/livelihood/dashboard', { params: { lang }, headers: { 'x-officer-key': key } }),
+  sessions: (key, params) => client.get('/livelihood/sessions', { params, headers: { 'x-officer-key': key } }),
+  updateSession: (key, id, body) => client.patch(`/livelihood/sessions/${id}`, body, { headers: { 'x-officer-key': key } }),
 };
 
 export const syncApi = {

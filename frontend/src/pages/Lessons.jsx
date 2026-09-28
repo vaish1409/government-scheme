@@ -8,10 +8,11 @@ import { useLanguage } from '../context/LanguageContext';
 const CATEGORIES = [
   { key: 'all', label: 'All' },
   { key: 'finance', label: '💰 Finance' },
-  { key: 'maternal_health', label: '🤰 Maternal' },
-  { key: 'general_health', label: '🩺 Health' },
   { key: 'digital_literacy', label: '📱 Digital' },
 ];
+
+// Health lessons are out of scope for the livelihood assistant
+const ALLOWED = ['finance', 'digital_literacy'];
 
 export default function Lessons() {
   const { t } = useLanguage();
@@ -24,7 +25,7 @@ export default function Lessons() {
   useEffect(() => {
     lessonsApi
       .list()
-      .then(({ data }) => setLessons(data.lessons))
+      .then(({ data }) => setLessons(data.lessons.filter((l) => ALLOWED.includes(l.category))))
       .catch(() => {}) // offline & no cache yet — the empty state below handles this
       .finally(() => setLoading(false));
 

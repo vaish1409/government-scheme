@@ -1,12 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { Home, BookOpen, ShieldCheck, User } from 'lucide-react';
+import { Home, BookOpen, Mic, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 
 const tabs = [
   { to: '/home', icon: Home, key: 'home' },
+  { to: '/assistant', icon: Mic, key: 'talk' },
   { to: '/lessons', icon: BookOpen, key: 'lessons' },
-  { to: '/schemes', icon: ShieldCheck, key: 'schemes' },
   { to: '/profile', icon: User, key: 'profile' },
 ];
 

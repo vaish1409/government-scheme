@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useOnlineStatus } from './useOnlineStatus';
-import { getUnsyncedEvents, markEventsSynced } from '../db/offlineStore';
+import { getUnsyncedEvents, markEventsSynced, PROGRESS_QUEUED_EVENT } from '../db/offlineStore';
 import { syncApi } from '../api/client';
 
 // 'idle' | 'syncing' | 'synced' | 'error'
@@ -33,6 +33,12 @@ export function useSync(isAuthenticated) {
   useEffect(() => {
     if (isOnline) runSync();
   }, [isOnline, runSync]);
+
+  useEffect(() => {
+    const handleProgressQueued = () => runSync();
+    window.addEventListener(PROGRESS_QUEUED_EVENT, handleProgressQueued);
+    return () => window.removeEventListener(PROGRESS_QUEUED_EVENT, handleProgressQueued);
+  }, [runSync]);
 
   return { isOnline, status, runSync };
 }
