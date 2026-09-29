@@ -13,8 +13,14 @@ const lessonRoutes = require('./routes/lessonRoutes');
 const eligibilityRoutes = require('./routes/eligibilityRoutes');
 const syncRoutes = require('./routes/syncRoutes');
 const livelihoodRoutes = require('./routes/livelihoodRoutes');
+const channelRoutes = require('./routes/channelRoutes');
 
 const app = express();
+
+// Needed behind Render/Railway/ngrok so req.protocol and req.get('host') give
+// the real public https URL — both for correctness generally and because the
+// Twilio webhook signature check in channelRoutes depends on it exactly.
+app.set('trust proxy', 1);
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -54,6 +60,9 @@ app.use('/api/lessons', lessonRoutes);
 app.use('/api/eligibility', eligibilityRoutes);
 app.use('/api/sync', syncRoutes);
 app.use('/api/livelihood', livelihoodRoutes);
+// Twilio's Voice and WhatsApp webhooks POST application/x-www-form-urlencoded,
+// not JSON, so this path gets its own body parser rather than express.json().
+app.use('/api/channels', express.urlencoded({ extended: false }), channelRoutes);
 
 // --- Error handling (must be last) ---
 app.use(notFound);

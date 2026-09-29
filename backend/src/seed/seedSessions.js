@@ -33,6 +33,9 @@ const STATE_POOL = [
 ];
 const EDU_POOL = ['none', 'primary', 'class8', 'class8', 'class10', 'class10', 'class10', 'class12', 'iti', 'graduate'];
 const TRADE_KEYS = Object.keys(TRADES);
+// Weighted so most demo sessions look like they came from the web app, with
+// a realistic minority from the phone/WhatsApp bridge, once that exists.
+const CHANNEL_POOL = [...Array(6).fill('web'), ...Array(2).fill('ivr'), ...Array(2).fill('whatsapp')];
 
 function buildSessions(count = 150) {
   const r = rng(26097);
@@ -60,6 +63,7 @@ function buildSessions(count = 150) {
     const top = result.recommendations[0];
     const followUp = pick(r, ['none', 'none', 'none', 'enrolled', 'enrolled', 'completed', 'placed', 'placed', 'dropped']);
     rows.push({
+      channel: pick(r, CHANNEL_POOL),
       lang: r() < 0.6 ? 'hi' : 'en',
       state: profile.state,
       profile,

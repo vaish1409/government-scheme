@@ -5,6 +5,7 @@ const Lesson = require('./Lesson');
 const UserProgress = require('./UserProgress');
 const EligibilityCheck = require('./EligibilityCheck');
 const LivelihoodSession = require('./LivelihoodSession');
+const ChannelSession = require('./ChannelSession');
 
 // Associations
 User.hasMany(UserProgress, { foreignKey: 'userId', as: 'progress' });
@@ -24,4 +25,5 @@ module.exports = {
   UserProgress,
   EligibilityCheck,
   LivelihoodSession,
+  ChannelSession,
 };

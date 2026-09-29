@@ -11,6 +11,7 @@ const { sequelize } = require('../config/db');
  */
 const LivelihoodSession = sequelize.define('LivelihoodSession', {
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+  channel: { type: DataTypes.ENUM('web', 'ivr', 'whatsapp'), defaultValue: 'web' },
   lang: { type: DataTypes.STRING, defaultValue: 'en' },
   state: DataTypes.STRING,
   profile: { type: DataTypes.JSONB, allowNull: false }, // structured answers

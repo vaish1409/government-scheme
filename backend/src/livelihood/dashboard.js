@@ -15,6 +15,7 @@ function summarise(rows, langIn = 'en') {
   const states = {}, interests = {}, lowDemand = {}, courses = {}, gaps = {}, edu = {};
   const funnel = { none: 0, enrolled: 0, completed: 0, placed: 0, dropped: 0 };
   const pref = { self: 0, wage: 0, either: 0, unknown: 0 };
+  const channel = { web: 0, ivr: 0, whatsapp: 0 };
   const totals = { sessions: rows.length, demoSessions: 0, needsReview: 0, pendingCounsellor: 0, confirmed: 0, changed: 0 };
 
   for (const r of rows) {
@@ -25,6 +26,7 @@ function summarise(rows, langIn = 'en') {
     if (r.counsellorStatus === 'confirmed') totals.confirmed += 1;
     if (r.counsellorStatus === 'changed') totals.changed += 1;
 
+    inc(channel, ['web', 'ivr', 'whatsapp'].includes(r.channel) ? r.channel : 'web');
     if (r.state) inc(states, r.state);
     if (p.education) inc(edu, p.education);
     inc(pref, p.employmentPreference || 'unknown');
@@ -50,6 +52,7 @@ function summarise(rows, langIn = 'en') {
     skillGaps: top(gaps, 6).map(([skill, count]) => ({ skill, count })),
     education: top(edu, 8).map(([key, count]) => ({ key, label: EDU_LABEL[key] ? EDU_LABEL[key][lang] : key, count })),
     preference: pref,
+    channel,
     funnel: { ...funnel, followedUp: followed, placementRate: followed ? Math.round((funnel.placed / followed) * 100) : null },
   };
 }
