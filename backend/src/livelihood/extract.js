@@ -25,6 +25,7 @@ const DEV_DIGITS = '०१२३४५६७८९';
 function normalize(s) {
   return String(s || '')
     .toLowerCase()
+    .replace(/\u0901/g, '\u0902') // chandrabindu ँ -> anusvara ं (हूँ -> हूं, गाँव -> गांव)
     .replace(/[०-९]/g, (d) => String(DEV_DIGITS.indexOf(d)))
     .replace(/['’`]/g, '') // can't -> cant
     .replace(/[^\p{L}\p{M}\p{N}\s]/gu, ' ')

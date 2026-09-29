@@ -138,7 +138,7 @@ const TRADES = {
     en: 'computer and office work', hi: 'कंप्यूटर और ऑफिस का काम',
     kw: {
       en: ['computer', 'laptop', 'typing', 'data entry', 'phone repair', 'mobile repair', 'office work', 'tally', 'excel'],
-      hi: ['कंप्यूटर', 'कम्प्यूटर', 'लैपटॉप', 'टाइपिंग', 'डेटा एंट्री', 'ऑफिस'],
+      hi: ['कंप्यूटर', 'कम्प्यूटर', 'लैपटॉप', 'टाइपिंग', 'डेटा एंट्री', 'ऑफिस', 'मोबाइल रिपेयर', 'मोबाइल'],
     },
   },
   caregiving: {
