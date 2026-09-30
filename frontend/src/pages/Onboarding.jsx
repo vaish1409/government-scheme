@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Mic, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import Button from '../components/Button';
+import InstallButton from '../components/InstallButton';
 
 export default function Onboarding() {
   const { t, lang, setLang } = useLanguage();
@@ -71,6 +72,7 @@ export default function Onboarding() {
         transition={{ delay: 0.5 }}
         className="space-y-3"
       >
+        <InstallButton />
         <Button variant="marigold" icon={Mic} onClick={() => navigate('/assistant')}>{t('startTalking')}</Button>
         <Button variant="ghost" onClick={() => navigate('/login')}>{t('login')}</Button>
         <Button variant="ghost" onClick={() => navigate('/signup')}>{t('signup')}</Button>
