@@ -1,0 +1,65 @@
+# docker-compose.yml
+# Lives at the REPO ROOT (same level as backend/ and frontend/).
+# Three containers: Postgres, the Express API, and nginx serving the React
+# build + proxying /api to the backend. Run `docker compose up -d --build`
+# in this folder on your EC2 instance (or on your own machine for local dev).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # No "ports:" published to the host on purpose — only the backend
+    # container needs to reach Postgres, over Docker's internal network.
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 30d
+      CLIENT_URL: ${CLIENT_URL}
+      OFFICER_KEY: ${OFFICER_KEY}
+      PUBLIC_BASE_URL: ${CLIENT_URL}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Not published to the host either — only nginx (the frontend container)
+    # talks to it, via the proxy_pass in frontend/nginx.conf.
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Left empty on purpose — see the comment in frontend/src/api/client.js.
+        # The browser calls /api on whatever address you load the page from,
+        # and nginx in this same container forwards that to the backend.
+        VITE_API_URL: ""
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

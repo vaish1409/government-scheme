@@ -1,10 +1,15 @@
 import axios from 'axios';
 
-// Set VITE_API_URL in your .env file to your deployed backend URL,
-// e.g. https://health-finance-backend.onrender.com
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Set VITE_API_URL in your .env file to your deployed backend URL, e.g.
+// https://health-finance-backend.onrender.com — or leave it unset/empty to
+// call the API on the SAME origin as the frontend at a relative "/api" path.
+// That's what the Docker nginx setup (frontend/nginx.conf) relies on: nginx
+// reverse-proxies /api/* to the backend container, so the browser never
+// needs to know the backend's real address, and nothing breaks if the
+// server's public IP changes later.
+const API_URL = import.meta.env.VITE_API_URL || '';
 
-const client = axios.create({ baseURL: `${API_URL}/api` });
+const client = axios.create({ baseURL: API_URL ? `${API_URL}/api` : '/api' });
 
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
