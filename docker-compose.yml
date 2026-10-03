@@ -1,9 +1,3 @@
-# docker-compose.yml
-# Lives at the REPO ROOT (same level as backend/ and frontend/).
-# Three containers: Postgres, the Express API, and nginx serving the React
-# build + proxying /api to the backend. Run `docker compose up -d --build`
-# in this folder on your EC2 instance (or on your own machine for local dev).
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -19,8 +13,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    # No "ports:" published to the host on purpose — only the backend
-    # container needs to reach Postgres, over Docker's internal network.
 
   backend:
     build: ./backend
@@ -44,20 +36,18 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    # Not published to the host either — only nginx (the frontend container)
-    # talks to it, via the proxy_pass in frontend/nginx.conf.
 
   frontend:
     build:
       context: ./frontend
       args:
-        # Left empty on purpose — see the comment in frontend/src/api/client.js.
-        # The browser calls /api on whatever address you load the page from,
-        # and nginx in this same container forwards that to the backend.
         VITE_API_URL: ""
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - backend
 
