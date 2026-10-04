@@ -1,163 +1,176 @@
 # Saksham — voice-first livelihood mapping and skilling assistant
 
-Built for **SIH26097**: *AI-Driven voice Assistant for livelihood Mapping and
-NSQF-Aligned Skilling Recommendations for SC Communities under GIA component
-of PM-AJAY* (Ministry of Social Justice and Empowerment).
+> **Talk. Learn a skill. Earn.**
 
-Saksham replaces the usual sign-up form with a short spoken interview, in
-Hindi or English, over whichever channel someone already has — a phone
-browser, a WhatsApp chat, or a plain phone call. From that conversation it
-builds a 7-field livelihood profile, ranks NSQF-aligned training courses
-against it with a stated reason for each, flags the skill gap between what
-the person has and what the course needs, and shows local job and
-enterprise opportunities. District officers and counsellors get a live
-dashboard of demand, gaps, and a queue of sessions that need a human look.
+Built for **Smart India Hackathon 2026, problem statement SIH26097**: *AI-driven voice assistant for livelihood mapping and NSQF-aligned skilling recommendations for SC communities, under the GIA component of PM-AJAY (Ministry of Social Justice and Empowerment).*
 
-The project began as a different app — an offline-first PWA for financial
-and health literacy lessons and a government scheme eligibility checker.
-Both still work and share the same backend; see [Legacy
-features](#legacy-features-still-in-the-repo) below.
+Saksham replaces the usual sign-up form with a short spoken interview in **Hindi or English**. It builds a profile from the answers, matches the person to **NSQF-aligned courses with reasons**, shows what work is in demand in their state, and can hand them to a counsellor.
 
-## What's built
+**Live demo (AWS, HTTPS):** https://saksham-vaish.duckdns.org
+**Also deployed on Vercel:** https://government-scheme-bice.vercel.app
 
-| Area | Status |
-|---|---|
-| Voice interview (7-field profile, one question at a time, read-back and correction) | ✅ Built |
-| Ranked NSQF course matches with a stated reason | ✅ Built (sample course catalogue — see note below) |
-| Skill-gap view and district opportunity note | ✅ Built (sample demand data — see note below) |
-| PM-AJAY / scheme eligibility, reusing the existing rules engine | ✅ Built |
-| Web channel — installable PWA, works offline | ✅ Built |
-| WhatsApp channel — text or voice note, same interview engine | ✅ Built (Twilio) |
-| Phone / IVR channel — same interview engine over a call | ✅ Built (Twilio) |
-| Officer / counsellor dashboard — demand, gaps, review queue | ✅ Built (shared access key, not individual officer logins — see note below) |
-| Consent-gated save, delete-my-data | ✅ Built |
-| Languages | Hindi and English only |
-| Automated placement follow-up | ❌ Not built — a counsellor sets follow-up status by hand on the dashboard |
-| Kiosk mode (auto-reset per user) | ❌ Not built — guest access works, but the screen doesn't reset itself |
+<table>
+  <tr>
+    <td align="center"><img src="docs/01-voice-interview.png" width="220" alt="Voice interview screen"/><br/><sub>1. Speak, or type</sub></td>
+    <td align="center"><img src="docs/02-understood-and-matches.png" width="220" alt="What we understood and ranked matches"/><br/><sub>2. Read-back and ranked matches</sub></td>
+    <td align="center"><img src="docs/03-course-detail.png" width="220" alt="Course detail with reasons and next level"/><br/><sub>3. Why this course, what's next</sub></td>
+  </tr>
+</table>
 
-**Sample data, by design, not oversight.** The course catalogue
-(`backend/src/livelihood/courses.js`) and the state-by-trade demand table
-(`backend/src/livelihood/demand.js`) are hand-built, illustrative datasets —
-each file says so at the top, with a note on what real source should
-replace it (Skill India Digital Hub / NSDC qualification packs for courses;
-District Skill Development Plans, PLFS/NCS postings and state skill-mission
-surveys for demand). The recommendation logic doesn't care where the rows
-come from, so swapping in real data is a data change, not a code change.
+---
 
-**One backend, three channels.** `channels/voiceController.js` (phone) and
-`channels/whatsappController.js` (WhatsApp) both call the exact same
-`processTurn` and `recommend` functions in `livelihood/` that the web
-assistant uses — there's a single interview engine and a single
-recommendation engine behind all three.
+## The problem
+
+Skilling programmes exist, but matching people to the right course is weak. Under PMKVY 1.0–3.0, about 56.89 lakh people were certified and more than half have no reported placement (MSDE reply in Lok Sabha, via PIB). A learner who cannot fill in forms, or does not know which course fits, is often left behind.
+
+## Features
+
+**Voice interview**
+- Spoken interview in **Hindi and English**, one simple question at a time, with a progress bar
+- Tap-to-speak with a **typed fallback** and a **Skip** option
+- Every question can be read aloud
+
+**Profile and read-back**
+- Answers are turned into a profile (state, age, education, family work, current activity, interests, mobility, employment preference, local work)
+- **"What we understood"** read-back screen where the person can **correct** anything that is wrong
+- **Read all aloud** for people who cannot read comfortably
+
+**NSQF-aligned matches**
+- Ranked course matches with **NSQF level** and **duration**
+- A plain-language **reason** for each match: demand in the person's state, whether it leads to a salaried job, and whether their education qualifies
+- **Skills you will add** and the **next NSQF level** after the course
+- **Where this leads**, **support you may get** (government schemes) and **where to train**
+- **Work that is common in your state** and **documents to keep ready**
+
+**Counsellor handoff**
+- Opt-in: the person ticks consent to share their *answers (not their voice)* with a counsellor and can leave an optional phone number for a call back
+
+**Officer dashboard**
+- Key-protected view at `/officer` for district officers (demand, skill gaps, counsellor queue)
+
+**Also included**
+- Account sign-up and login
+- Scheme discovery with eligibility checking and short lessons (seeded sample content)
+- Installable **PWA** with an *Install app* button
+- Optional **Twilio WhatsApp and IVR channels** using the same interview and recommendation engine. See [Optional phone and WhatsApp channels](#optional-phone-and-whatsapp-channels) for setup.
 
 ## Tech stack
 
-- **Frontend:** React, Vite, Tailwind CSS, installable PWA (offline-capable via service worker)
-- **Backend:** Node.js, Express, Sequelize, PostgreSQL
-- **Voice (web):** Browser Web Speech API (speech-to-text and text-to-speech)
-- **Voice (phone/WhatsApp):** Twilio Voice and WhatsApp APIs; optional OpenAI transcription for WhatsApp voice notes
+| Layer | Technology |
+|---|---|
+| Frontend | React, Vite, Tailwind CSS, PWA |
+| Speech | Browser Web Speech API (speech-to-text and text-to-speech) |
+| Backend | Node.js, Express, Sequelize |
+| Database | PostgreSQL |
+| Deployment | Docker Compose, nginx, AWS EC2, Let's Encrypt HTTPS, GitHub Actions, Vercel |
+
+## How it fits together
+
+```
+Browser (React PWA)
+      │  https
+      ▼
+nginx (container, ports 80/443)  ──►  serves the built React app
+      │  /api/*
+      ▼
+Express API (container, port 5000)
+      │
+      ▼
+PostgreSQL (container, volume pgdata)
+```
+
+Useful routes: `/` home, `/assistant` voice interview, `/officer` officer dashboard.
+API examples: `GET /api/livelihood/meta` (trades, education levels, states, questions), `POST /api/livelihood/turn` (one interview turn), `GET /health`.
+
+### API overview
+
+**Livelihood assistant** (`/api/livelihood`):
+- `GET /meta` and `GET /catalog` — interview metadata and course catalogue
+- `POST /turn` and `POST /recommend` — process an interview answer and get ranked recommendations
+- `DELETE /sessions/:id` — delete the caller's saved session
+- `GET /dashboard`, `GET /sessions` and `PATCH /sessions/:id` — officer-only dashboard and session management; send the `x-officer-key` header matching `OFFICER_KEY`
+
+**Twilio channels** (`/api/channels`): `POST /voice/incoming`, `/voice/language`, `/voice/gather`, `/voice/consent`, and `/whatsapp/incoming`. Configure as described in [Optional phone and WhatsApp channels](#optional-phone-and-whatsapp-channels).
+
+The earlier account-based app is also present: `/home`, `/lessons`, and `/profile`, backed by `/api/auth`, `/api/schemes`, `/api/lessons`, `/api/eligibility`, and `/api/sync`.
+
+## Run it locally
+
+You need Node.js 18+, npm and a PostgreSQL database.
+
+```bash
+git clone https://github.com/vaish1409/government-scheme.git
+cd government-scheme
+
+# 1) Backend
+cd backend
+npm install
+cp .env.example .env      # fill in your database settings and a JWT secret
+npm run dev               # http://localhost:5000
+
+# 2) Frontend (new terminal)
+cd ../frontend
+npm install
+cp .env.example .env      # set VITE_API_URL=http://localhost:5000
+npm run dev               # http://localhost:5173
+```
+
+Load the sample schemes, lessons and demo sessions with `npm run seed` in `backend/`. The seed script loads 7 schemes, 3 lessons and 150 synthetic livelihood sessions for demonstration; scheme eligibility rules are simplified and lesson media URLs are placeholders. Verify official scheme criteria before relying on them.
+
+> Browsers only allow the microphone on secure pages. Voice works on `http://localhost` and on HTTPS sites, but not on a plain `http://` IP address. Use the typed fallback in that case.
+
+## Environment variables
+
+Copy `.env.example` to `.env` (never commit `.env`).
+
+| Variable | Purpose |
+|---|---|
+| `DB_NAME`, `DB_USER`, `DB_PASSWORD` | PostgreSQL credentials |
+| `JWT_SECRET` | Secret used to sign login tokens (generate with `openssl rand -hex 32`) |
+| `CLIENT_URL` | Public URL of the app, for example `https://your-domain` |
+| `OFFICER_KEY` | Password for the officer dashboard |
+| `TWILIO_*`, `OPENAI_API_KEY` | Optional integrations; leave blank if unused |
+
+## Deployment
+
+Production runs on a single **AWS EC2** instance with **Docker Compose**:
+
+- `postgres` — PostgreSQL 16 with a persistent volume
+- `backend` — the Express API
+- `frontend` — nginx serving the React build, proxying `/api/` to the backend, and terminating **HTTPS** with a free **Let's Encrypt** certificate (renewed automatically)
+
+```bash
+cp .env.example .env            # fill in real values
+docker compose up -d --build
+docker compose exec backend npm run seed   # first time only
+```
+
+`frontend/nginx.conf` is written for the production domain and expects the certificate files under `/etc/letsencrypt`. For local development use the steps in *Run it locally*, or adjust `nginx.conf`.
+
+**CI/CD:** every push to `master` triggers `.github/workflows/deploy.yml`, which connects to the server over SSH, pulls the latest code and rebuilds the containers. It uses the repository secrets `EC2_SSH_KEY`, `EC2_HOST` and `EC2_USER`.
+
+The frontend is also deployed on **Vercel**. There, `VITE_API_URL` points at the backend. On the AWS deployment it is left empty so the app calls the same origin at `/api`.
+
+### Optional phone and WhatsApp channels
+
+The backend includes Twilio webhooks for phone (IVR) interviews and WhatsApp text or voice-note interviews. To try them, configure `PUBLIC_BASE_URL`, `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` in `backend/.env`, then configure your Twilio phone number to POST calls to `/api/channels/voice/incoming` and your WhatsApp sender to POST messages to `/api/channels/whatsapp/incoming` on that public HTTPS backend. WhatsApp voice-note transcription additionally requires `OPENAI_API_KEY`; without it, ask the person to type their answer. These channels require a configured Twilio account and are not needed for the web app.
 
 ## Project structure
 
 ```
-backend/
-  src/
-    livelihood/     interview engine, extraction, recommendation, course
-                     catalogue, demand data, vocab/keyword lists — the core
-                     engine shared by every channel
-    channels/        the phone (IVR) and WhatsApp bridges on top of that engine
-    controllers/     route handlers, including the legacy scheme/lesson app
-    models/          Sequelize models (User, LivelihoodSession, ChannelSession,
-                     Scheme, Lesson, ...)
-    routes/          Express routers
-    middleware/      auth, officer-key check, Twilio signature verification
-    seed/            sample schemes, lessons, and demo livelihood sessions
-frontend/
-  src/
-    pages/           Assistant (voice interview), LivelihoodResults,
-                     OfficerDashboard, plus the legacy Home/Lessons/Schemes pages
-    components/      CourseCard, ProfileEditor, SchemeCard, ...
-    hooks/           useVoice (Web Speech API wrapper), useSync, useOnlineStatus
-    api/             axios client
+backend/                 Express API, Sequelize models, seed scripts, Dockerfile
+frontend/                React + Vite app, nginx.conf, Dockerfile
+docker-compose.yml       postgres + backend + frontend
+.github/workflows/       CI/CD pipeline
+docs/                    README screenshots
 ```
 
-## Setup
+## Roadmap
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/vaish1409/government-scheme.git
-cd government-scheme
-```
+- More regional languages
+- Counsellor check-ins and placement tracking after training
+- Real district demand data feeds for the officer dashboard
 
-### 2. Backend
-```bash
-cd backend
-npm install
-cp .env.example .env
-```
-Edit `.env`:
-- Set either `DATABASE_URL` or the `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, and `DB_PORT` PostgreSQL settings, plus a real `JWT_SECRET`.
-- Set `OFFICER_KEY` to whatever you want the officer dashboard's access key to be.
-- Leave the Twilio and `OPENAI_API_KEY` variables blank unless you're setting up the phone/WhatsApp channels (see below) — the web assistant, PWA, and legacy app all work without them.
+## Team
 
-```bash
-npm run seed   # sample schemes, lessons, and demo livelihood sessions
-npm run dev    # or: npm start
-```
-The API runs at `http://localhost:5000`.
-
-### 3. Frontend
-```bash
-cd ../frontend
-npm install
-cp .env.example .env   # set VITE_API_URL if your backend isn't on localhost:5000
-npm run dev
-```
-Open the URL Vite prints (usually `http://localhost:5173`) in a Chromium-based browser — the voice interview uses the Web Speech API, which Safari and Firefox don't fully support.
-
-Key routes: `/assistant` (voice interview), `/results` (recommendations), `/officer` (dashboard, needs the `OFFICER_KEY`).
-
-### 4. Phone (IVR) and WhatsApp channels — optional
-These need a Twilio account and a public HTTPS URL (your deployed backend, or `ngrok` while testing locally):
-1. Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `PUBLIC_BASE_URL` in `backend/.env`.
-2. In the Twilio console, point your phone number's "A call comes in" webhook to `{PUBLIC_BASE_URL}/api/channels/voice/incoming`.
-3. Point your WhatsApp sender's webhook to `{PUBLIC_BASE_URL}/api/channels/whatsapp/incoming`.
-4. Optionally set `OPENAI_API_KEY` so WhatsApp voice notes get transcribed — without it, the bridge asks the sender to type instead. Phone-call speech recognition doesn't need this key; Twilio transcribes call speech itself.
-
-## API overview
-
-**Livelihood assistant** (`/api/livelihood`) — public unless noted:
-- `GET /meta` — languages, education levels, trades, etc. for the frontend
-- `GET /catalog` — the course catalogue
-- `POST /turn` — one step of the interview
-- `POST /recommend` — ranked courses, skill gaps, and local opportunities for a completed profile
-- `DELETE /sessions/:id` — a saved session deletes its own data
-- `GET /dashboard`, `GET /sessions`, `PATCH /sessions/:id` — officer-only, sent with an `x-officer-key` header matching `OFFICER_KEY`
-
-**Channels** (`/api/channels`) — Twilio webhooks only, not for direct use:
-- `POST /voice/incoming`, `/voice/language`, `/voice/gather`, `/voice/consent`
-- `POST /whatsapp/incoming`
-
-**Health check** — `GET /health` returns the server status.
-
-**Legacy app** — `/api/auth`, `/api/schemes`, `/api/lessons`, `/api/eligibility`, `/api/sync` (see [Legacy features](#legacy-features-still-in-the-repo)). The frontend still includes `/home`, `/lessons`, and `/profile`; there is no standalone `/schemes` page in the current router.
-
-## Legacy features still in the repo
-
-The project's first version was an offline-first PWA that teaches short
-financial/health-literacy lessons and checks eligibility for government
-welfare schemes (PM Kisan, PMMVY, Ayushman Bharat, and others), with an
-offline-first sync design so progress made without a connection still
-saves once the device reconnects. That code is untouched and still runs —
-`/home`, `/lessons`, and `/profile` in the frontend, and the
-`auth`, `scheme`, `lesson`, and `sync` routes in the backend — but it's a
-separate feature set from the livelihood assistant described above, kept
-in the same repo because they share a database and a rules engine.
-
-## Known limitations
-
-- Officer dashboard access is one shared key (`OFFICER_KEY`), not individual officer accounts.
-- No automated placement follow-up: a counsellor sets status by hand.
-- No kiosk auto-reset between users on a shared device.
-- Course and demand data are illustrative, not sourced from live NSQF/NSDC or labour-market feeds.
-- Voice support covers Hindi and English only.
+**Team Surang** — Smart India Hackathon 2026 · maintained by [@vaish1409](https://github.com/vaish1409)
