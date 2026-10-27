@@ -29,8 +29,9 @@ Your existing `docker-compose.yml`, Dockerfiles and the EC2 deployment are **not
 | `k8s/04-frontend.yaml` | Frontend Deployment and the NodePort Service (port 30080) |
 | `k8s/jobs/seed-job.yaml` | One-off Job that loads schemes, lessons and demo data |
 | `Jenkinsfile` | The CI/CD pipeline |
-| `jenkins/setup-vm.sh` | Installs Docker, k3s and Jenkins on the VM |
-| `backend/tests/engine.test.js` and `"test"` in `backend/package.json` | Three unit tests so the pipeline has a real test stage |
+| `jenkins/setup-vm.sh` | Installs Docker, k3s and Jenkins on Ubuntu |
+| `jenkins/setup-vm-centos.sh` | Installs Docker, k3s and Jenkins on CentOS Stream 10 / RHEL-family systems |
+| `backend/tests/engine.test.js` and `"test"` in `backend/package.json` | Backend tests used by the pipeline's test stage |
 
 Optional: `.github/workflows/deploy.yml` still deploys to EC2 on every push to `master`. It is harmless and
 can stay. If your EC2 server is switched off it will show a red cross on GitHub; you can ignore it, or
@@ -40,7 +41,7 @@ disable it in the repo's Actions tab.
 
 ## Before you start
 
-**VM:** Ubuntu 22.04 or 24.04, at least **2 CPUs and 4 GB RAM**, 25 GB disk, internet access.
+**VM:** Ubuntu 22.04/24.04 or CentOS Stream 10, at least **2 CPUs, 4 GB RAM** (6 GB recommended), 25 GB disk, internet access.
 
 **VM network:** in VirtualBox or VMware set the network adapter to **Bridged Adapter**. With the default
 NAT setting your laptop's browser cannot reach the VM's ports. (With NAT you would have to add port-forward rules for 8080 and 30080.)
@@ -58,23 +59,33 @@ folder names, and replace `backend/package.json` with the one in the zip. Or, if
 - `backend/package.json`: in `"scripts"`, add `"test": "node --test"` (put a comma after the `seed` line).
 - Add the new folders `k8s/`, `jenkins/`, `backend/tests/`, the file `Jenkinsfile` and this guide.
 
-## Step 2. Edit exactly two things
+## Step 2. Check the deployment settings
 
-1. **`Jenkinsfile`**: change `YOUR_DOCKERHUB_USERNAME` to your Docker Hub username.
-2. **`k8s/01-config.yaml`**: change both `YOUR_VM_IP` values to the VM's IP address
-   (you get the IP in Step 3; come back and edit this before the first pipeline run).
+1. **`Jenkinsfile`**: `DOCKERHUB_USER` is currently set to `vaish1409`. Change it only if you will push images to a different Docker Hub account.
+2. **`k8s/01-config.yaml`**: after the VM is running, replace both `YOUR_VM_IP` values with its IP address before the first pipeline run.
 
 Do **not** commit passwords. Secrets are created on the VM in Step 6.
 
 ## Step 3. Install everything on the VM
 
-On the VM:
+Use the commands matching the VM's Linux distribution. Install Git before cloning:
+
+**Ubuntu 22.04/24.04:**
 
 ```bash
 sudo apt-get update && sudo apt-get install -y git
 git clone https://github.com/vaish1409/government-scheme.git
 cd government-scheme
 bash jenkins/setup-vm.sh
+```
+
+**CentOS Stream 10 / RHEL-family:**
+
+```bash
+sudo dnf install -y git
+git clone https://github.com/vaish1409/government-scheme.git
+cd government-scheme
+bash jenkins/setup-vm-centos.sh
 ```
 
 (If you haven't pushed your changes yet, push them from the laptop first, then clone.)
