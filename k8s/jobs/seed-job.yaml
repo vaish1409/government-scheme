@@ -1,0 +1,27 @@
+# One-off Job that loads the schemes, lessons and demo data.
+# Not applied automatically. Run it once with the command in the guide.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed
+  namespace: saksham
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: seed
+          image: __BACKEND_IMAGE__
+          command: ["node", "src/seed/index.js"]
+          envFrom:
+            - configMapRef:
+                name: saksham-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: saksham-secret, key: DB_PASSWORD }
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef: { name: saksham-secret, key: JWT_SECRET }
