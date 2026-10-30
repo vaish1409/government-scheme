@@ -13,8 +13,8 @@ data:
   DB_PORT: "5432"
   JWT_EXPIRES_IN: "30d"
   # Address you open in the browser. Change YOUR_VM_IP to the VM's IP address.
-  CLIENT_URL: "http://YOUR_VM_IP:30080"
-  PUBLIC_BASE_URL: "http://YOUR_VM_IP:30080"
+  CLIENT_URL: "http://192.168.31.128:30080"
+  PUBLIC_BASE_URL: "http://192.168.31.128:30080"
 ---
 # nginx settings for Kubernetes: plain HTTP (the EC2 version in frontend/nginx.conf
 # uses a Let's Encrypt certificate, which does not exist inside the cluster).
